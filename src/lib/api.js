@@ -3,7 +3,13 @@ import { handleApiErrors } from 'lib/api-errors';
 async function apiWrapper(url, options) {
   const response = await fetch(url, options);
   await handleApiErrors(response);
-  return response.json();
+
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.indexOf("application/json") !== -1) {
+    return response.json();
+  } else {
+    return response.text();
+  }
 }
 
 const api = {
