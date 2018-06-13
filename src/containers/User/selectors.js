@@ -1,11 +1,25 @@
 import { createSelector } from 'reselect';
 
-export const isSignedInSelector = createSelector(
-  state => state.user,
-  user => !!(user.user && user.user.user_uid)
+export const userStateSelector = state => state.user;
+
+export const userSelector = createSelector(
+  userStateSelector,
+  userState => userState.user
 );
 
+export const userUidSelector = createSelector(
+  userSelector,
+  (user = {}) => user.user_uid
+);
+
+export const isSignedInSelector = createSelector(
+  userSelector,
+  userUidSelector,
+  user_uid => !!user_uid
+);
+
+
 export const emailSelector = createSelector(
-  state => state.user,
-  user => user && user.user && user.user.email_address
+  userSelector,
+  (user = {}) => user.email_address
 );

@@ -1,5 +1,5 @@
 import { AsyncStorage } from "react-native";
-import { select, all, takeLatest, takeEvery, call, put } from "redux-saga/effects";
+import { select, all, takeLatest, takeEvery, call, put, fork } from "redux-saga/effects";
 import { initializeWallet } from "./WalletInstances";
 import { INIT_REQUESTING, SUPPORTED_COINS_WALLET } from "containers/App/constants";
 import {store} from '../../App';
@@ -7,6 +7,7 @@ import {
   WALLET_INITIALIZE_PASSPHRASE,
   WALLET_HYDRATED,
   WALLET_TRACK_SYMBOL,
+  WALLET_TRACK_SYMBOL_SUCCESS,
   WALLET_IMPORT,
 
   WALLET_UPDATE_BALANCE_ERROR,
@@ -16,6 +17,7 @@ import {
   WALLET_SEND_FUNDS_SUCCESS,
   WALLET_SEND_FUNDS_ERROR
 } from "./constants";
+import { UPDATE_USER } from 'containers/User/constants';
 import {
   initializeMnemonic,
   importWallet,
@@ -26,10 +28,13 @@ import {
   trackSymbolFailure,
 } from "./actions";
 
+import {userUidSelector} from "containers/User/selectors";
 import {
   allWalletsSelector,
   mnemonicPhraseSelector
 } from "./selectors";
+
+import api from 'lib/api';
 
 const WALLET_STORAGE_KEY = "wallets/storage/wallets";
 const MNEMONIC_STORAGE_KEY = "wallets/storage/mnemonic";
@@ -270,12 +275,53 @@ function* setUpWallets(action) {
   }
 }
 
+export async function registerWallet({user_uid, address, currency}) {
+  try {
+    const response = await api.post(
+      `https://erebor-staging.hoardinvest.com/users/${user_uid}/register_address`,
+      {currency, address}
+    );
+    return true;
+  } catch(e) {
+    if (__DEV__) {
+      // eslint-disable-next-line no-console
+      console.log('register wallet error', e, e.errors);
+    }
+    return false;
+  }
+}
+
+export function* registerWalletFromTrack(action) {
+  const user_uid = yield select(userUidSelector);
+
+  if (user_uid) {
+    yield call(
+      registerWallet,
+      {user_uid, currency: action.payload.symbol, address: action.payload.publicAddress}
+    );
+  }
+}
+
+export function* registerWalletFromUser(action) {
+  const wallets = yield select(allWalletsSelector);
+
+  if (wallets.length && action.user && action.user.user_uid) {
+    wallets.map(wallet =>
+      registerWallet({user_uid: action.user.user_uid, currency: wallet.symbol, address: wallet.publicAddress})
+    );
+  }
+}
+
 export default function* walletSagaWatcher() {
   yield all([
     takeLatest(INIT_REQUESTING, initWalletsFlow),
 
     takeLatest(WALLET_INITIALIZE_PASSPHRASE, setUpWallets),
     takeEvery(WALLET_TRACK_SYMBOL, trackSymbolFlow),
+
+    takeEvery(WALLET_TRACK_SYMBOL_SUCCESS, registerWalletFromTrack),
+    takeEvery(UPDATE_USER, registerWalletFromUser),
+
     takeEvery(WALLET_IMPORT, importWalletFlow),
 
     takeLatest(WALLET_UPDATE_BALANCE_REQUESTING, updateBalanceFlow),
