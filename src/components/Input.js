@@ -86,11 +86,12 @@ export default class Input extends Component {
     const activeStyle = this.state.active
       ? this.props.light
         ? styles.input_active_light
-        : styles.input_active
+        : this.props.type === 'underline'
+          ? styles.inputUnderline_active
+          : styles.input_active
       : this.props.light
         ? styles.input_inactive_light
         : styles.input_inactive;
-
     const inputColors = this.props.light
       ? styles.input_light
       : styles.input_dark;
@@ -190,6 +191,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.grayLight,
     color: '#fff',
+  },
+  inputUnderline_active: {
+    borderBottomColor: '#49a7d9',
   },
   input_dark: {},
   input_active: {
