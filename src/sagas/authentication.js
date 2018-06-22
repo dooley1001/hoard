@@ -16,7 +16,7 @@ export const AUTH_SIGNOUT = 'AUTH_SIGNOUT';
 export const AUTH_USER_STORAGE_KEY = 'auth/user';
 
 import { UPDATE_USER } from 'containers/User/constants';
-import updateUser from 'containers/User/actions';
+import { initUser, updateUser } from 'containers/User/actions';
 import { store } from '../App.js';
 import {
   isMnemonicInitializedSelector,
@@ -194,7 +194,7 @@ export default function* authenticationWatcher() {
     // If we've gotten this far, we have a currentUser and will wait and listen
     // for any logout-related actions, and if dispatched, we'll log them out and
     // redirect them to the Login screen.
-    yield put(updateUser(currentUser));
+    yield put(initUser(currentUser));
     yield take([AUTH_SIGNOUT /* all other unset actions */]);
     yield call(logoutFlow);
     NavigatorService.navigate('Login');

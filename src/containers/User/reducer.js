@@ -1,4 +1,4 @@
-import { UPDATE_USER } from './constants';
+import { INIT_USER, UPDATE_USER } from './constants';
 
 const initialState = {
   requesting: false,
@@ -10,6 +10,7 @@ const initialState = {
 
 export default function initReducer(state = initialState, action) {
   switch (action.type) {
+    case INIT_USER:
     case UPDATE_USER:
       return {
         ...state,

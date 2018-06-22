@@ -1,7 +1,9 @@
-import { UPDATE_USER } from './constants';
+import { INIT_USER, UPDATE_USER } from './constants';
 
-const updateUser = function updateUser(user) {
-  return { type: UPDATE_USER, user: user };
+export function initUser(user) {
+  return { type: INIT_USER, user: user };
 };
 
-export default updateUser;
+export function updateUser(user) {
+  return { type: UPDATE_USER, user: user };
+};
