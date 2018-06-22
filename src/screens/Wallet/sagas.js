@@ -17,7 +17,7 @@ import {
   WALLET_SEND_FUNDS_SUCCESS,
   WALLET_SEND_FUNDS_ERROR
 } from "./constants";
-import { UPDATE_USER } from 'containers/User/constants';
+import { INIT_USER } from 'containers/User/constants';
 import {
   initializeMnemonic,
   importWallet,
@@ -320,7 +320,7 @@ export default function* walletSagaWatcher() {
     takeEvery(WALLET_TRACK_SYMBOL, trackSymbolFlow),
 
     takeEvery(WALLET_TRACK_SYMBOL_SUCCESS, registerWalletFromTrack),
-    takeEvery(UPDATE_USER, registerWalletFromUser),
+    takeEvery(INIT_USER, registerWalletFromUser),
 
     takeEvery(WALLET_IMPORT, importWalletFlow),
 
