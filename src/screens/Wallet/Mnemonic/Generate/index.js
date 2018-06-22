@@ -33,7 +33,8 @@ export default class Generate extends Component {
 
   state = {
     step: 1,
-    mnemonic: ethers.Wallet.createRandom().mnemonic
+    mnemonic: ethers.Wallet.createRandom().mnemonic,
+    confirmationList: []
   };
 
   generateNewMnemonic = (extraEntropy) => {
@@ -44,14 +45,15 @@ export default class Generate extends Component {
 
   generateConfirmationList = () => {
     const list = this.state.mnemonic.split(' ');
-    return getXItemsFromList(2, list)
+    const confirmationList = getXItemsFromList(2, list)
       .map(word => ({i: list.indexOf(word), word}))
       .sort((a, b) => a.i - b.i);
+
+    this.setState({confirmationList}, this.nextStep);
   };
 
   nextStep = () => {
     const currentStep = this.state.step;
-    console.log(currentStep);
     const nextStep = currentStep <= 3 ? currentStep + 1 : 1;
 
     this.setState({
@@ -110,17 +112,16 @@ export default class Generate extends Component {
       return (
         <Step2
           list={mnemonicList}
-          saveAndContinue={this.nextStep}
+          saveAndContinue={this.generateConfirmationList}
           goBack={this.goBack}
           navigation={this.props.navigation}
         />
       );
     }
     if (step === 4) {
-      const confirmList = this.generateConfirmationList();
       return (
         <Confirm
-          list={confirmList}
+          list={this.state.confirmationList}
           saveWallet={this.saveNewWallet}
           goBack={this.goBack}
           navigation={this.props.navigation}
