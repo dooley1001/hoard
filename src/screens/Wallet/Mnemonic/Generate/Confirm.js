@@ -40,10 +40,6 @@ export default class Confirm extends Component {
   setNavigation = () => {
     this.props.navigation.setParams({
       leftAction: this.props.goBack,
-      title: 'Create Wallet',
-      multipage: true,
-      currentPage: 3,
-      totalPages: 3,
     });
   };
 

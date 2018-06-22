@@ -29,10 +29,6 @@ export default class Step1 extends Component {
   setNavigation = () => {
     this.props.navigation.setParams({
       leftAction: this.props.goBack,
-      title: 'Create Wallet',
-      multipage: true,
-      currentPage: 1,
-      totalPages: 3,
     });
   };
 

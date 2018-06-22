@@ -37,6 +37,16 @@ export default class Generate extends Component {
     confirmationList: []
   };
 
+  componentDidMount() {
+    this.setNavigation();
+  }
+
+  setNavigation = () => {
+    this.props.navigation.setParams({
+      title: 'Create Wallet',
+    });
+  };
+
   generateNewMnemonic = (extraEntropy) => {
     this.setState({
       mnemonic: ethers.Wallet.createRandom({extraEntropy}).mnemonic

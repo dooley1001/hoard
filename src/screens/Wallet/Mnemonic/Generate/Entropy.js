@@ -82,12 +82,7 @@ export default class Entropy extends Component {
 
   setNavigation = () => {
     this.props.navigation.setParams({
-      leftAction: (
-        <TouchableOpacity onPress={this.handleGoBack}>
-          <Image source={require('assets/closeicon.png')} />
-        </TouchableOpacity>
-      ),
-      title: 'Scribbles',
+      leftAction: this.handleGoBack,
     });
   };
 
