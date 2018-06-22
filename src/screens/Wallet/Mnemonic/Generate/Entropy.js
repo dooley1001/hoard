@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   TouchableOpacity,
@@ -9,14 +9,14 @@ import {
   Image,
   View
 } from 'react-native';
-import SVG, { Path, Circle } from 'react-native-svg';
+import SVG, { Path, Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 import {CircularProgress} from 'react-native-svg-circular-progress';
 
 import Conditional, { Try, Otherwise } from 'components/Conditional';
 import Button from 'components/Button';
 import T from 'components/Typography';
-import { Layout, Header, Body } from 'components/Base';
+import { Layout, Body, Header, Footer } from 'components/Base';
 
 const LANG_NEXT_TEXT = 'next';
 const LANG_BACK_TEXT = 'back';
@@ -131,11 +131,13 @@ export default class Entropy extends Component {
     const percentageComplete = (movement.length / MAX_DATA_POINTS) * 100;
     const finished = percentageComplete === 100;
 
-    let progressText = '';
+    let progressText = 'Scribble around for a bit...';
     if (finished) {
-      progressText = 'Finished';
+      progressText = 'Finished!';
+    } else if (percentageComplete >= 75) {
+      progressText = 'Almost there...';
     } else if (movement.length) {
-      progressText = 'Keep Going...';
+      progressText = 'Please keep going...';
     }
 
 
@@ -147,91 +149,97 @@ export default class Entropy extends Component {
     const responders = finished ? {} : {...this.panResponder.panHandlers};
 
     return (
-      <View style={styles.container}>
-        <View ref={this.setViewRef} onLayout={this.handleLayout} style={styles.drawBox} {...responders}>
-          <Conditional>
+      <Layout preload={false} style={styles.layout}>
+        <Header style={styles.header}>
+          <T.Heading style={styles.heading}>Generate Your Words</T.Heading>
+        </Header>
+        <Body style={styles.body}>
+          <View ref={this.setViewRef} onLayout={this.handleLayout} style={styles.drawBox} {...responders}>
             <Try condition={drawableWidth && drawableHeight && movement.length}>
               <SVG height={`${drawableHeight}`} width={`${drawableWidth}`}>
+                <LinearGradient id="grad" y1="0" x1="0" y2={drawableHeight.toString()} x2={drawableWidth.toString()}>
+                  <Stop offset="0" stopColor="rgb(153,47,238)" />
+                  <Stop offset="0.25" stopColor="rgb(230,34,131)" />
+                  <Stop offset="0.75" stopColor="rgb(230,34,131)" />
+                  <Stop offset="1" stopColor="rgb(153,47,238)" />
+                </LinearGradient>
                 <Path
                   d={path}
                   fill="none"
-                  stroke="#e6228d"
+                  stroke="url(#grad)"
                   strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </SVG>
             </Try>
-            <Otherwise>
-              <View style={{alignItems: 'center'}}>
-                <Image
-                  style={{resizeMode: 'contain', opacity: 0.4}}
-                  source={require('assets/scribble.png')}
-                />
-                <T.Heading style={{
-                  color: "#3E434B",
-                  marginTop: 20,
-                }}>
-                  Scribble around for a bit
-                </T.Heading>
-              </View>
-            </Otherwise>
-          </Conditional>
-        </View>
-        <View style={styles.footerContainer}>
-          <Conditional>
-            <Try condition={finished}>
-              <View style={{}}>
-                <T.Heading style={{textAlign: 'center', color: 'white', marginBottom: 20}}>{progressText}</T.Heading>
-                <Button onPress={this.handleNextButton} loading={this.state.loading}>
-                  {LANG_NEXT_TEXT}
-                </Button>
-              </View>
-            </Try>
-            <Otherwise>
-              <View style={{alignItems: 'center'}}>
-                <CircularProgress
-                  percentage={percentageComplete}
-                  blankColor="rgba(151, 151, 151, 0.3)"
-                  donutColor="#e6228d"
-                  progressWidth="46"
-                  fillColor="#1b1c23"
-                  size={100}
-                >
-                  <T.Light style={{textAlign: 'center', color: 'white', fontSize: 24, fontWeight: '400'}}>{parseInt(percentageComplete)}%</T.Light>
-                </CircularProgress>
-                <T.Heading style={{color: 'white', marginTop: 20}}>{progressText}</T.Heading>
-              </View>
-            </Otherwise>
-          </Conditional>
-        </View>
-      </View>
+          </View>
+        </Body>
+        <Footer style={styles.footer}>
+          <Try condition={!finished}>
+            <CircularProgress
+              percentage={percentageComplete}
+              blankColor="rgba(151, 151, 151, 0.3)"
+              donutColor="#e6228d"
+              progressWidth="46"
+              fillColor="#1b1c23"
+              size={100}
+            >
+              <T.Light style={styles.percentage}>{parseInt(percentageComplete)}%</T.Light>
+            </CircularProgress>
+          </Try>
+          <T.SubHeading style={[styles.progressText, styles.snapToBottom]}>{progressText}</T.SubHeading>
+          <Try condition={finished}>
+            <Button
+              style={[styles.nextButton, styles.snapToBottom]}
+              onPress={this.handleNextButton}
+              loading={this.state.loading}>
+              {LANG_NEXT_TEXT}
+            </Button>
+          </Try>
+        </Footer>
+      </Layout>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  layout: {
+    padding: 20,
     flex: 1,
   },
-  drawBox: {
+  header: {
+  },
+  heading: {
+    color: 'white',
+  },
+  body: {
     flex: 2,
-    margin: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  drawBox: {
+    flex: 1,
     borderWidth: 1,
     borderColor: '#3E434B',
   },
-  headerContainer: {
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: '#223252'
-  },
-  headingStyle: {
-    color: '#ffffff'
-  },
-  footerContainer: {
+  footer: {
     flex: 1,
-    padding: 20
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  progressText: {
+    color: 'white',
+  },
+  percentage: {
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 24,
+    fontWeight: '400'
+  },
+  nextButton: {
+    width: '100%',
+  },
+  snapToBottom: {
+    marginTop: 'auto',
   },
 });
