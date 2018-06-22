@@ -8,9 +8,14 @@ import { Layout, Body, Header, Footer } from 'components/Base';
 
 const LANG_NEXT_TEXT = 'Next';
 
-export default class Step1 extends Component {
+export default class WordList extends Component {
   static propTypes = {
     list: PropTypes.arrayOf(PropTypes.string).isRequired,
+    offset: PropTypes.number.isRequired,
+    totalLength: PropTypes.number.isRequired,
+    navigation: PropTypes.shape({
+      setParams: PropTypes.func.isRequired
+    }).isRequired,
     goBack: PropTypes.func.isRequired,
     saveAndContinue: PropTypes.func.isRequired,
   };
@@ -61,10 +66,9 @@ export default class Step1 extends Component {
       <Layout preload={false}>
         <Body scrollable style={styles.body}>
           <Header>
-            <T.Heading style={styles.headingStyle}>Your Seed Words</T.Heading>
+            <T.Heading style={styles.headingStyle}>Your Words</T.Heading>
             <T.Light style={styles.text}>
               Write down each word in order and store it in a safe place.
-              Seriously, do this!
             </T.Light>
           </Header>
           <Body>
@@ -89,7 +93,7 @@ export default class Step1 extends Component {
                 return (
                   <View key={`word-${i}`} style={styles.mnemonicChoice}>
                     <T.Light style={styles.mnemonicChoiceNumner}>
-                      {`0${i + 1}`.slice(-2)}
+                      {`0${i + this.props.offset}`.slice(-2)}
                     </T.Light>
                     <T.SemiBold style={styles.mnemonicChoiceText}>
                       {word}
@@ -107,7 +111,7 @@ export default class Step1 extends Component {
                 paddingBottom: 10,
               }}
             >
-              6 of 12 words
+              {this.props.list.length + this.props.offset - 1} of {this.props.totalLength} words
             </T.Light>
             <Button
               loading={this.state.loading}
@@ -136,13 +140,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#223252',
   },
   headingStyle: {
-    padding: 20,
+    marginVertical: 20,
     paddingBottom: 0,
     color: '#ffffff',
   },
   text: {
     color: '#fff',
-    fontWeight: '300',
+    fontWeight: '200',
     fontSize: 16,
   },
 
@@ -150,9 +154,9 @@ const styles = StyleSheet.create({
   mnemonicChoice: {
     padding: 20,
     borderRadius: 8,
-    backgroundColor: '#22282F',
+    backgroundColor: '#272D35',
     opacity: 0.5,
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: 'row',
   },
   mnemonicChoiceNumner: {
