@@ -8,7 +8,7 @@ import { Layout, Body, Header, Footer } from 'components/Base';
 import Button from 'components/Button';
 import Input from 'components/Input';
 import T from 'components/Typography';
-import _ from 'lodash';
+import memoize from 'lodash/memoize';
 
 const initialStateQuestion = {
   value: '',
@@ -62,7 +62,7 @@ export default class Confirm extends Component {
     });
   };
 
-  updateFormField = _.memoize(index => value => this.setState({
+  updateFormField = memoize(index => value => this.setState({
     questions: [
       ...this.state.questions.slice(0, index),
       {
@@ -74,7 +74,7 @@ export default class Confirm extends Component {
     ]
   }));
 
-  checkField = _.memoize(index => () => {
+  checkField = memoize(index => () => {
     const item = this.state.questions[index];
     this.setState({
       questions: [
